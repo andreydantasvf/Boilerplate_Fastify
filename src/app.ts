@@ -1,7 +1,7 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
-import { env } from './utils/env';
+import { env } from './config';
 import { userRoutes } from './routes/user.routes';
 import { errorHandler } from './errors/errorHandler';
 
