@@ -2,6 +2,8 @@ import fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { env } from './utils/env';
+import { userRoutes } from './routes/user.routes';
+import { errorHandler } from './errors/errorHandler';
 
 export const startApp = async () => {
   const app = fastify({ logger: true });
@@ -11,6 +13,10 @@ export const startApp = async () => {
   app.register(helmet);
 
   // Routes
+  app.register(userRoutes, { prefix: '/api/users' });
+
+  // Middleware global de erros
+  errorHandler(app);
 
   // Start Server
   try {
