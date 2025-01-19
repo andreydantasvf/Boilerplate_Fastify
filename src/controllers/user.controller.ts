@@ -6,7 +6,11 @@ export async function createUserHandler(
   req: FastifyRequest,
   reply: FastifyReply
 ) {
-  const body = createUserSchema.parse(req.body);
-  const user = await createUser(body);
-  reply.code(201).send(user);
+  try {
+    const body = createUserSchema.parse(req.body);
+    const user = await createUser(body);
+    reply.code(201).send(user);
+  } catch (error) {
+    throw error;
+  }
 }
