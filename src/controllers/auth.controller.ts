@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { authenticateUser } from '../services/auth.service';
+import { authenticateUser, logoutUser } from '../services/auth.service';
 import { env } from '../config';
 import { createAuthSchema } from '../schemas/auth.schema';
 
@@ -21,6 +21,16 @@ export async function loginUser(req: FastifyRequest, reply: FastifyReply) {
       .send({ message: 'Login successful' });
   } catch (error) {
     reply.clearCookie('access_token');
+    throw error;
+  }
+}
+
+export async function logout(req: FastifyRequest, reply: FastifyReply) {
+  try {
+    await logoutUser(reply);
+
+    reply.status(200).send({ message: 'User successfully logged out' });
+  } catch (error) {
     throw error;
   }
 }

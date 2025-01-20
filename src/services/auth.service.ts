@@ -1,3 +1,4 @@
+import { FastifyReply } from 'fastify';
 import { AppError } from '../errors/AppError';
 import { prisma } from '../plugins/prisma';
 import bcrypt from 'bcrypt';
@@ -19,4 +20,8 @@ export async function authenticateUser(data: {
   }
 
   return { id: user.id, email: user.email, name: user.name };
+}
+
+export async function logoutUser(reply: FastifyReply) {
+  reply.clearCookie('access_token');
 }
