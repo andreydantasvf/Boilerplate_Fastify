@@ -28,7 +28,6 @@ prisma/migrations/
 coverage/
 
 # IDE and Editor settings
-.vscode/
 .idea/
 .DS_Store
 *.swp
@@ -48,9 +47,6 @@ Thumbs.db
 # Jest
 .jest/
 *.test-results.json
-
-# Husky
-.husky/_
 
 # TypeScript
 *.tsbuildinfo
