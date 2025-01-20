@@ -21,3 +21,7 @@ export async function createUser(data: {
     data: { ...data, password: hashedPassword }
   });
 }
+
+export async function getAllUsers() {
+  return prisma.user.findMany();
+}
