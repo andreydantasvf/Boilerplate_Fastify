@@ -57,7 +57,7 @@ export default [
       '@typescript-eslint/ban-ts-comment': 'warn',
       'no-console': 'warn',
       'no-debugger': 'error',
-      'no-unused-vars': 'error',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', args: 'none' }],
       eqeqeq: ['error', 'always'],
       'prefer-const': 'warn',
       'no-var': 'error',
