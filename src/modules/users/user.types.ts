@@ -10,4 +10,9 @@ export interface IUser {
 
 export interface IUserRepository {
   save(user: IUser): Promise<IUser>;
+  findByEmail(email: string): Promise<IUser | null>;
+  findById(id: string): Promise<IUser | null>;
+  findAll(): Promise<IUser[]>;
+  deleteById(id: string): Promise<void>;
+  update(user: IUser): Promise<IUser>;
 }
