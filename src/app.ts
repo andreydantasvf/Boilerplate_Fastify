@@ -25,6 +25,7 @@ export const startApp = async () => {
   // Start Server
   try {
     await app.listen({ port: env.PORT, host: '0.0.0.0' });
+    // eslint-disable-next-line no-console
     console.log(
       `🚀 Server running at http://localhost:${env.PORT} in ${env.NODE_ENV} mode`
     );
