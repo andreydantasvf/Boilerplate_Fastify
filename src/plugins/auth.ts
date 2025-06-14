@@ -19,9 +19,10 @@ declare module '@fastify/jwt' {
 
 declare module 'fastify' {
   interface FastifyInstance {
+    // disable eslint-disable-next-line no-unused-vars
     authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply
+      request: FastifyRequest, //eslint-disable-line no-unused-vars
+      reply: FastifyReply //eslint-disable-line no-unused-vars
     ) => Promise<void>;
   }
 }
