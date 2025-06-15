@@ -1,8 +1,4 @@
-import fastify, {
-  FastifyInstance,
-  FastifyPluginAsync,
-  FastifyPluginCallback
-} from 'fastify';
+import fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import fastifySwagger from '@fastify/swagger';
 import {
   jsonSchemaTransform,
@@ -12,6 +8,7 @@ import {
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import authPlugin from '@/core/plugins/auth';
 import { env } from '../config/env';
 
 interface CustomRouteHandler {
@@ -24,12 +21,16 @@ class App {
   private app_domain: string = '0.0.0.0';
   private app_port: number = env.API_PORT || 3333;
 
-  constructor(appInit: {
-    plugins: FastifyPluginCallback[];
-    routes: (new () => CustomRouteHandler)[];
-  }) {
+  constructor(appInit: { routes: (new () => CustomRouteHandler)[] }) {
     this.app = fastify({
       logger: true
+    });
+
+    this.app.register(authPlugin, {
+      jwtSecret: env.JWT_SECRET,
+      accessTokenName: 'access_token',
+      refreshTokenName: 'refresh_token',
+      cookiePath: '/api'
     });
 
     this.app.register(cors, {
@@ -77,14 +78,7 @@ class App {
       routePrefix: '/docs'
     });
 
-    this.register(appInit.plugins);
     this.routes(appInit.routes);
-  }
-
-  private register(plugins: FastifyPluginCallback[]) {
-    plugins.forEach((plugin) => {
-      this.app.register(plugin);
-    });
   }
 
   private routes(routes: (new () => CustomRouteHandler)[]) {
