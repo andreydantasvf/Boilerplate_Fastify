@@ -33,7 +33,7 @@ class App {
     });
 
     this.app.register(cors, {
-      origin: process.env.FRONTEND_URL,
+      origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       exposedHeaders: ['Content-Type', 'Authorization'],
@@ -90,7 +90,9 @@ class App {
   private routes(routes: (new () => CustomRouteHandler)[]) {
     routes.forEach((Route) => {
       const router = new Route();
-      this.app.register(router.routes, { prefix: router.prefix_route });
+      this.app.register(router.routes, {
+        prefix: `/api${router.prefix_route}`
+      });
     });
 
     this.app.get('/healthcheck', async (request, reply) => {
@@ -117,7 +119,7 @@ class App {
         process.exit(1);
       }
 
-      if (process.env.NODE_ENV !== 'test') {
+      if (env.NODE_ENV !== 'test') {
         // eslint-disable-next-line no-console
         console.log(
           `App listening on the http://${this.app_domain}:${this.app_port} 🚀`
