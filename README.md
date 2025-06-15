@@ -1,74 +1,135 @@
 ![Fastify Boilerplate](https://raw.githubusercontent.com/fastify/graphics/96648545bcad9d1984dd96363a39e2775b59afef/fastify-landscape-outlined.svg)
 
-This is a boilerplate for [Fastify](https://www.fastify.io/), a high-performance web framework for Node.js, intended to serve as a foundation for building scalable web applications.
+# 🚀 Fastify API Boilerplate: Seguro e Escalável.
 
-## What is inside?
+Um boilerplate robusto e escalável para APIs REST com Fastify, TypeScript e Prisma. Pronto para produção, com autenticação, integração com banco de dados, validação de ambiente e arquitetura modular.
 
-This project includes a range of technologies and tools:
+## ✨ Features
 
-- [Fastify](https://www.fastify.io/) - Fast and low overhead web framework for Node.js
-- [TypeScript](https://www.typescriptlang.org/) - Superset of JavaScript for static type checking
-- [ESLint](https://eslint.org/) - Linter for identifying and fixing problems in your JavaScript code
-- [Prettier](https://prettier.io/) - Code formatter to ensure consistent code style
-- [Husky](https://github.com/typicode/husky) - Git hooks to enforce code quality standards
-- [dotenv](https://github.com/motdotla/dotenv) - Environment variable loader
-- [prisma](https://www.prisma.io/docs) - ORM to work with databases
+- **Autenticação Completa**:
+  - JWT (Access/Refresh Token via cookies HttpOnly)
+  - Login local (e-mail/senha)
+  - OAuth2 (Google)
+  - Rotação e revogação de refresh token
+  - Detecção de roubo de token
+- **Stack Moderna**: TypeScript, Fastify, Prisma, Zod
+- **Banco de Dados**: Prisma ORM + PostgreSQL
+- **Docker**: Ambiente pronto para desenvolvimento e produção
+- **Arquitetura Modular**: Separação clara por módulos, plugins e camadas (Controller, Service, Repository)
+- **Validação e Segurança**: Zod, bcrypt, Helmet, CORS
+- **Swagger**: Documentação automática
 
-## Getting Started
+## 🛠️ Tech Stack
 
-### 1. Clone the repository:
+- **Framework**: [Fastify](https://www.fastify.io/)
+- **Linguagem**: [TypeScript](https://www.typescriptlang.org/)
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Banco de Dados**: [PostgreSQL](https://www.postgresql.org/)
+- **Validação**: [Zod](https://zod.dev/)
+- **Autenticação**: [@fastify/jwt](https://github.com/fastify/fastify-jwt), [@fastify/cookie](https://github.com/fastify/fastify-cookie), [@fastify/oauth2](https://github.com/fastify/fastify-oauth2)
+- **Segurança**: [bcrypt](https://github.com/dcodeIO/bcrypt.js), [@fastify/helmet](https://github.com/fastify/fastify-helmet), [@fastify/cors](https://github.com/fastify/fastify-cors)
+- **Documentação**: [@fastify/swagger](https://github.com/fastify/fastify-swagger)
+- **Lint/Format**: ESLint, Prettier, Husky
+- **Testes**: Jest
+- **Container**: Docker, Docker Compose
 
-```bash
-git clone https://github.com/andreydantasvf/boilerplate_Fastify.git
-cd boilerplate_Fastify
+## 📁 Estrutura de Pastas
+
+```
+.
+├── prisma/                  # Schema e migrações do Prisma
+│   ├── schema.prisma
+│   └── migrations/
+├── src/
+│   ├── core/
+│   │   ├── config/          # Configuração de ambiente (env.ts)
+│   │   ├── database/        # Conexão com o banco (connection.ts)
+│   │   ├── plugins/
+│   │   │   └── auth/        # Plugin de autenticação (hooks, index, utils)
+│   │   └── webserver/       # App, error handler, etc
+│   ├── modules/
+│   │   ├── auth/            # Módulo de autenticação
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.repository.ts
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── auth.schema.ts
+│   │   │   ├── auth.service.ts
+│   │   │   └── auth.types.ts
+│   │   └── users/           # Módulo de usuários
+│   │       ├── user.controller.ts
+│   │       ├── user.repository.ts
+│   │       ├── user.routes.ts
+│   │       ├── user.schema.ts
+│   │       ├── user.service.ts
+│   │       └── user.types.ts
+│   ├── shared/
+│   │   └── hash/            # Utilitário de hash de senha
+│   │       └── password-hash.ts
+│   ├── tests/               # Testes automatizados
+│   │   ├── auth/
+│   │   └── users/
+│   ├── server.ts            # Entry point
+│   └── ...
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── tsconfig.json
+└── ...
 ```
 
-### 2. Install dependencies:
+## 🚀 Como rodar
 
-```bash
-npm install
-# or
-yarn install
-```
+1. Clone o repositório e instale as dependências:
+   ```bash
+   git clone ...
+   cd ...
+   cp .env.example .env
+   # Edite o .env conforme necessário
+   ```
+2. Suba os containers:
+   ```bash
+   docker-compose up --build -d
+   ```
+3. Rode as migrações:
+   ```bash
+   docker-compose exec api npx prisma migrate dev
+   ```
+4. Acesse: http://localhost:3333
 
-### 3. Set up environment variables:
+## 🔐 Fluxo de Autenticação
 
-Create a `.env` file in the root of the project, and add the following environment variables (you may need to modify these values depending on your setup):
+- Login gera cookies HttpOnly (`access_token`, `refresh_token`)
+- Refresh automático de token
+- Logout revoga todos os tokens
+- OAuth2 Google disponível
 
-```env
-DATABASE_URL="mongodb://localhost:27017/boilerplate?replicaSet=rs0"
-NODE_ENV='development'
-PORT='3333'
-JWT_SECRET='mySecret'
-JWT_EXPIRATION='1d'
-COOKIE_SECRET='mySecret'
-```
+## ↔️ Endpoints Principais
 
-NOTE: The Prisma ORM not working good with mongoDB
+### Auth (`/api/auth`)
 
-### 4. Run the development server:
+| Método | Rota             | Proteção  | Descrição                                |
+| ------ | ---------------- | --------- | ---------------------------------------- |
+| POST   | /login           | Pública   | Login com e-mail e senha                 |
+| POST   | /refresh         | Pública   | Gera novo access_token via refresh_token |
+| POST   | /logout          | Pública   | Logout e revogação de tokens             |
+| GET    | /me              | Protegida | Dados do usuário autenticado             |
+| GET    | /google          | Pública   | Inicia login Google OAuth2               |
+| GET    | /google/callback | Pública   | Callback do Google OAuth2                |
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+### Usuários (`/api/users`)
 
-Open [http://localhost:3333](http://localhost:3333) with your browser to see the result.
+| Método | Rota | Proteção  | Descrição                  |
+| ------ | ---- | --------- | -------------------------- |
+| POST   | /    | Pública   | Cria novo usuário          |
+| GET    | /    | Pública   | Lista todos os usuários    |
+| GET    | /:id | Pública   | Busca usuário por ID       |
+| PUT    | /:id | Protegida | Atualiza usuário (próprio) |
+| DELETE | /:id | Protegida | Deleta usuário (próprio)   |
 
-You can start editing the API routes by modifying the files in the `src/routes` folder.
+## 🧪 Testes
 
-## Available Scripts
-
-In the project directory, you can run the following commands:
-
-- `dev`: runs the application in development mode on `localhost:3333`
-- `build`: builds the production version of the application
-- `start`: starts a simple server with the production build
-- `lint`: runs the linter to check for any code issues
-
-## Additional Resources
-
-- [Fastify Documentation](https://www.fastify.io/docs/latest/)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [Prettier Documentation](https://prettier.io/docs/en/)
+- Testes unitários e de integração com Jest
+- Para rodar:
+  ```bash
+  npm test
+  ```
