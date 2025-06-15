@@ -1,6 +1,10 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { createUserSchema } from './user.schema';
+import {
+  createUserSchema,
+  updateUserSchema,
+  userIdSchema
+} from './user.schema';
 import { UserController } from './user.controller';
 
 export class UserRoutes {
@@ -11,10 +15,10 @@ export class UserRoutes {
     this.controller = new UserController();
   }
 
-  public async routes(
+  public routes = async (
     fastify: FastifyInstance,
     _options: FastifyPluginOptions
-  ) {
+  ) => {
     const fastifyWithZod = fastify.withTypeProvider<ZodTypeProvider>();
 
     fastifyWithZod.post(
@@ -24,7 +28,42 @@ export class UserRoutes {
           body: createUserSchema
         }
       },
-      this.controller.create
+      (request, reply) => this.controller.create(request, reply)
     );
-  }
+
+    fastifyWithZod.get(
+      '/:id',
+      {
+        schema: {
+          params: userIdSchema
+        }
+      },
+      (request, reply) => this.controller.findById(request, reply)
+    );
+
+    fastifyWithZod.get('/', {}, (request, reply) =>
+      this.controller.findAll(request, reply)
+    );
+
+    fastifyWithZod.delete(
+      '/:id',
+      {
+        schema: {
+          params: userIdSchema
+        }
+      },
+      (request, reply) => this.controller.deleteById(request, reply)
+    );
+
+    fastifyWithZod.put(
+      '/:id',
+      {
+        schema: {
+          params: userIdSchema,
+          body: updateUserSchema
+        }
+      },
+      (request, reply) => this.controller.update(request, reply)
+    );
+  };
 }
