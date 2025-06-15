@@ -4,12 +4,15 @@ import { AuthService } from './auth.service';
 import { AppError } from '@/core/webserver/app-error';
 import { IGoogleToken, IGoogleUserProfile } from './auth.types';
 import { env } from '@/core/config/env';
+import { UserService } from '../users/user.service';
 
 export class AuthController {
   private service: AuthService;
+  private userService: UserService;
 
   constructor() {
     this.service = new AuthService();
+    this.userService = new UserService();
   }
 
   public async login(
@@ -95,7 +98,18 @@ export class AuthController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
-    reply.send(request.user);
+    const requestUser = request.user as { sub: string };
+    const user = await this.userService.findById(requestUser.sub);
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    return reply.status(200).send({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    });
   }
 
   public async googleCallback(request: FastifyRequest, reply: FastifyReply) {
