@@ -35,7 +35,10 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  async findByEmail(
+    email: string,
+    returnPassword: boolean = false
+  ): Promise<IUser | null> {
     try {
       const user = await this.db.user.findUnique({
         where: { email },
@@ -43,12 +46,13 @@ export class UserRepository implements IUserRepository {
           id: true,
           name: true,
           email: true,
+          password: returnPassword,
           authProvider: true,
           createdAt: true,
           updatedAt: true
         }
       });
-      return user;
+      return user as IUser;
     } catch (error) {
       throw new Error('Error finding user by email: ' + error);
     }
