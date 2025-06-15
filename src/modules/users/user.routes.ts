@@ -48,6 +48,7 @@ export class UserRoutes {
     fastifyWithZod.delete(
       '/:id',
       {
+        preHandler: [fastify.authenticate],
         schema: {
           params: userIdSchema
         }
@@ -58,6 +59,7 @@ export class UserRoutes {
     fastifyWithZod.put(
       '/:id',
       {
+        preHandler: [fastify.authenticate],
         schema: {
           params: userIdSchema,
           body: updateUserSchema

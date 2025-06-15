@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { UserService } from './user.service';
 import { IUser } from './user.types';
 import { CreateUserInput } from './user.schema';
+import { AppError } from '@/core/webserver/app-error';
 
 export class UserController {
   private service: UserService;
@@ -56,6 +57,12 @@ export class UserController {
   ): Promise<void> {
     const { id } = request.params as { id: string };
 
+    const userLoggedIn = request.user as { sub: string };
+
+    if (userLoggedIn.sub !== id) {
+      throw new AppError('You can only delete your own account', 403);
+    }
+
     await this.service.deleteById(id);
 
     return reply.status(204).send({ message: 'User deleted successfully' });
@@ -67,6 +74,12 @@ export class UserController {
   ): Promise<IUser> {
     const { id } = request.params as { id: string };
     const { name, email, password } = request.body as Partial<IUser>;
+
+    const userLoggedIn = request.user as { sub: string };
+
+    if (userLoggedIn.sub !== id) {
+      throw new AppError('You can only update your own account', 403);
+    }
 
     const user = await this.service.update(id, name, email, password);
 
