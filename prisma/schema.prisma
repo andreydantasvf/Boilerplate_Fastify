@@ -20,8 +20,22 @@ model User {
   password     String?
   authProvider String  @default("local") @map("auth_provider") // local/google/github/etc
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  RefreshToken RefreshToken[]
 
   @@map("users")
+}
+
+model RefreshToken {
+  id          String   @id
+  hashedToken String   @unique
+  userId      String   @map("user_id")
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
