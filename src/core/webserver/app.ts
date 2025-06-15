@@ -1,4 +1,5 @@
 import fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import oauthPlugin from '@fastify/oauth2';
 import fastifySwagger from '@fastify/swagger';
 import {
   jsonSchemaTransform,
@@ -33,8 +34,22 @@ class App {
       cookiePath: '/api'
     });
 
+    this.app.register(oauthPlugin, {
+      name: 'googleOAuth2',
+      credentials: {
+        client: {
+          id: env.GOOGLE_CLIENT_ID as string,
+          secret: env.GOOGLE_CLIENT_SECRET as string
+        },
+        auth: oauthPlugin.GOOGLE_CONFIGURATION
+      },
+      startRedirectPath: '/api/auth/google',
+      callbackUri: env.GOOGLE_CALLBACK_URL as string,
+      scope: ['profile', 'email']
+    });
+
     this.app.register(cors, {
-      origin: '*',
+      origin: env.FRONTEND_URL,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       exposedHeaders: ['Content-Type', 'Authorization'],

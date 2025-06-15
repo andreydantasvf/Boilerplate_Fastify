@@ -5,6 +5,8 @@ import fastifyJwt from '@fastify/jwt';
 
 import { authenticate } from './hooks';
 import { setAuthCookies, clearAuthCookies } from './utils';
+import { OAuth2Namespace } from '@fastify/oauth2';
+import { AppError } from '@/core/webserver/app-error';
 
 export interface AuthPluginOptions {
   jwtSecret: string;
@@ -15,7 +17,7 @@ export interface AuthPluginOptions {
 
 async function authPlugin(server: FastifyInstance, options: AuthPluginOptions) {
   if (!options.jwtSecret) {
-    throw new Error('JWT secret is required');
+    throw new AppError('JWT secret is required', 401);
   }
 
   await server.register(fastifyCookie);
@@ -68,5 +70,8 @@ declare module 'fastify' {
       refreshToken: string;
     }) => void;
     clearAuthCookies: () => void;
+  }
+  interface FastifyInstance {
+    googleOAuth2: OAuth2Namespace;
   }
 }
