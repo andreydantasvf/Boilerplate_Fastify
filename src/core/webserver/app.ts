@@ -77,7 +77,8 @@ class App {
           title: 'Boilerplate Fastify API Documentation',
           description: 'API documentation for the Fastify boilerplate',
           version: '1.0.0'
-        }
+        },
+        servers: []
       },
       transform: jsonSchemaTransform
     });
@@ -90,7 +91,11 @@ class App {
     });
 
     this.app.register(fastifySwaggerUi, {
-      routePrefix: '/docs'
+      routePrefix: '/docs',
+      uiConfig: {
+        docExpansion: 'full',
+        deepLinking: false
+      }
     });
 
     this.routes(appInit.routes);
