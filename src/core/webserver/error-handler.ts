@@ -21,7 +21,7 @@ export const errorHandler = (app: FastifyInstance) => {
       if (hasZodFastifySchemaValidationErrors(error)) {
         return reply.status(400).send({
           status: 'error',
-          message: error.message,
+          message: error.validation.map((e) => e.message).join(', '),
           statusCode: 400
         });
       }
