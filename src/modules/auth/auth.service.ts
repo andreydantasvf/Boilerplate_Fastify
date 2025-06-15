@@ -3,7 +3,7 @@ import { UserRepository } from '../users/user.repository';
 import { IUser, IUserRepository } from '../users/user.types';
 import { PasswordHash } from '@/shared/hash/password-hash';
 import { createHash, randomBytes } from 'crypto';
-import { IAuthRepository } from './auth.types';
+import { IAuthRepository, IGoogleUserProfile } from './auth.types';
 import { AuthRepository } from './auth.repository';
 
 export class AuthService {
@@ -82,5 +82,28 @@ export class AuthService {
       //eslint-disable-next-line no-console
       console.log('Token to revoke not found, user is effectively logged out.');
     }
+  }
+
+  async handleGoogleOAuth(profile: IGoogleUserProfile): Promise<IUser> {
+    const { email, name } = profile;
+
+    const existingUser = await this.userRepository.findByEmail(email);
+
+    if (existingUser) {
+      if (existingUser.authProvider === 'local') {
+        throw new AppError(
+          'This email is already registered with a password. Please log in locally.',
+          400
+        );
+      }
+      return existingUser;
+    }
+
+    const newUser = await this.userRepository.save({
+      name,
+      email,
+      authProvider: 'google'
+    });
+    return newUser;
   }
 }

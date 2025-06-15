@@ -2,6 +2,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { loginInput } from './auth.schema';
 import { AuthService } from './auth.service';
 import { AppError } from '@/core/webserver/app-error';
+import { IGoogleToken, IGoogleUserProfile } from './auth.types';
+import { env } from '@/core/config/env';
 
 export class AuthController {
   private service: AuthService;
@@ -94,5 +96,46 @@ export class AuthController {
     reply: FastifyReply
   ): Promise<void> {
     reply.send(request.user);
+  }
+
+  public async googleCallback(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { token }: { token: IGoogleToken } =
+        await request.server.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(
+          request
+        );
+
+      const googleProfileResponse = await fetch(
+        'https://www.googleapis.com/oauth2/v2/userinfo',
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`
+          }
+        }
+      );
+      const googleProfile: IGoogleUserProfile =
+        await googleProfileResponse.json();
+
+      const user = await this.service.handleGoogleOAuth(googleProfile);
+
+      if (!user.id) {
+        throw new AppError('Failed to authenticate with Google', 401);
+      }
+
+      const accessToken = await reply.jwtSign(
+        { sub: user.id },
+        { expiresIn: '15m' }
+      );
+
+      const refreshToken = await this.service.createAndStoreRefreshToken(
+        user.id
+      );
+
+      reply.setAuthCookies({ accessToken, refreshToken });
+
+      return reply.redirect(env.FRONTEND_URL || '/');
+    } catch {
+      return reply.redirect(`${env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
   }
 }

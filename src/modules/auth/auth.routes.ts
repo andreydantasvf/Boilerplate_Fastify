@@ -40,5 +40,9 @@ export class AuthRoutes {
       { preHandler: [fastify.authenticate] },
       (request, reply) => this.controller.getMe(request, reply)
     );
+
+    fastifyWithZod.get('/google/callback', {}, (request, reply) =>
+      this.controller.googleCallback(request, reply)
+    );
   };
 }

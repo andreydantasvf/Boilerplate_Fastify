@@ -17,3 +17,12 @@ export interface IAuthRepository {
     revoked: boolean
   ): Promise<IRefreshToken>;
 }
+
+export interface IGoogleUserProfile {
+  email: string;
+  name: string;
+}
+
+export interface IGoogleToken {
+  access_token: string;
+}
